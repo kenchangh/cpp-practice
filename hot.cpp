@@ -1,3 +1,4 @@
+#include <Python.h>
 #include <iostream>
 #include <stdexcept>
 #include <ctime>
@@ -46,7 +47,14 @@ double round(double value, int nth) {
   return floor(value*10*nth + 0.5)/(10*nth);
 }
 
-float hot(int score, tm created, int comments) {
+static PyObject* hot(PyObject *self, PyObject *args) {
+  int score, comments;
+  float created;
+
+  if (!PyArg_ParseTuple(args, "ifi", &score, &created, &comments)) {
+    return NULL;
+  }
+
   float log_score;
   score == 0
     ? log_score = log10(abs(score))
@@ -61,13 +69,28 @@ float hot(int score, tm created, int comments) {
   else {
     sign = 0;
   }
-  long int seconds = epoch_seconds(created) - START_TIME;
+  long int seconds = created - START_TIME;
   float result = log_score * sign * 5000 +
     seconds + comments + score_rate(score, seconds);
-  return round(result, 5);
+  return Py_BuildValue("f", round(result, 5));
 }
 
-int main() {
+static PyMethodDef module_methods[] = {
+  {"hot", (PyCFunction)hot, METH_VARARGS, NULL}
+};
+
+PyMODINIT_FUNC inithot(void) {
+  (void) Py_InitModule("hot", module_methods);
+}
+
+int main(int argc, char *argv[]) {
+  Py_SetProgramName(argv[0]);
+  Py_Initialize();
+  inithot();
+  return 0;
+}
+
+/*int main() {
   time_t time_now;
   // Creating some random time
   tm some_time;
@@ -85,4 +108,4 @@ int main() {
   float hot_score = hot(60, some_time, 5);
   cout << hot_score << endl;
   return 0;
-}
+}*/

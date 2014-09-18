@@ -1,0 +1,3 @@
+LIBRARY hot.pyd
+EXPORTS
+inithot
