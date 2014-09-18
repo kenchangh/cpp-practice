@@ -36,12 +36,9 @@ float score_rate(int score, long int seconds) {
   minutes = hours_minutes.remainder;
 
   float rate;
-  try {
-    rate = score / hours;
-  }
-  catch(overflow_error e) {
-    rate = 0;
-  }
+  hours != 0
+    ? rate = score / hours
+    : rate = 0;
   return rate;
 }
 
