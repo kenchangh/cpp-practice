@@ -1,4 +1,7 @@
 #include <Python.h>
+#include <datetime.h>
+#include <iostream>
+#include <stdexcept>
 #include <ctime>
 #include <cmath>
 using namespace std;
@@ -30,11 +33,22 @@ double round(double value, int nth) {
   return floor(value*10*nth + 0.5)/(10*nth);
 }
 
+tm py_datetime2tm(PyObject *py_datetime) {
+  tm c_datetime;
+  c_datetime.tm_sec = PyDateTime_DATE_GET_SECOND(py_datetime);
+  c_datetime.tm_min = PyDateTime_DATE_GET_MINUTE(py_datetime);
+  c_datetime.tm_hour = PyDateTime_DATE_GET_HOUR(py_datetime);
+  c_datetime.tm_mday = PyDateTime_GET_DAY(py_datetime);
+  c_datetime.tm_mon = PyDateTime_GET_MONTH(py_datetime);
+  c_datetime.tm_year = PyDateTime_GET_YEAR(py_datetime) - 1990;
+  return c_datetime;
+}
+
 static PyObject* hot_score(PyObject *self, PyObject *args) {
   int score, comments;
-  float created;
+  PyObject *created;
 
-  if (!PyArg_ParseTuple(args, "ifi", &score, &created, &comments)) {
+  if (!PyArg_ParseTuple(args, "iOi", &score, &created, &comments)) {
     return NULL;
   }
 
@@ -52,18 +66,21 @@ static PyObject* hot_score(PyObject *self, PyObject *args) {
   else {
     sign = 0;
   }
-  long int seconds = created - START_TIME;
+  unsigned long int seconds =
+    epoch_seconds(py_datetime2tm(created)) - START_TIME;
   float result = log_score * sign * 5000 +
     seconds + comments + score_rate(score, seconds);
   return Py_BuildValue("f", round(result, 5));
 }
 
+// Defining the functions
 static PyMethodDef module_methods[] = {
   {"hot", (PyCFunction)hot_score, METH_VARARGS,
    "Calculates a post's hot score."},
   {NULL, NULL, 0, NULL}
 };
 
+// Initializing hot_score module with functions
 PyMODINIT_FUNC inithot_score(void) {
   (void) Py_InitModule("hot_score", module_methods);
 }
