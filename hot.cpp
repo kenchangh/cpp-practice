@@ -44,7 +44,7 @@ tm py_datetime2tm(PyObject *py_datetime) {
   return c_datetime;
 }
 
-static PyObject* hot_score(PyObject *self, PyObject *args) {
+static PyObject *hot_score(PyObject *self, PyObject *args) {
   int score, comments;
   PyObject *created;
 
