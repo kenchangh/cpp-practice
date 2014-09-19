@@ -46,7 +46,7 @@ tm py_datetime2tm(PyObject *py_datetime) {
 
 static PyObject *hot_score(PyObject *self, PyObject *args) {
   int score, comments;
-  PyObject *created;
+  PyObject* created;
 
   if (!PyArg_ParseTuple(args, "iOi", &score, &created, &comments)) {
     return NULL;
