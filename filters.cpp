@@ -70,9 +70,9 @@ string delta_str(double delta) {
 }
 
 static PyObject *dt2relative(PyObject *self, PyObject *args) {
-	PyObject *py_dt;
+  PyObject *py_dt;
 
-	if (!PyArg_ParseTuple(args, "O", &py_dt)) {
+  if (!PyArg_ParseTuple(args, "O", &py_dt)) {
     return NULL;
   }
   tm dt = py_datetime2tm(py_dt);
